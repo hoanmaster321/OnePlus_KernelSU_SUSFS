@@ -342,7 +342,8 @@ runs:
         KERNEL_PATCHES_DIR="$GITHUB_WORKSPACE/kernel_patches"
         SUSFS_DIR="$GITHUB_WORKSPACE/susfs4ksu"
         KSU_DIR="$KERNEL_PLATFORM_DIR/KernelSU"
-        SUKISU_DIR="$KERNEL_PLATFORM_DIR/SukiSU-Ultra"
+        # SukiSU's setup script checks the source out as kernel_platform/KernelSU.
+        SUKISU_DIR="$KSU_DIR"
         mkdir -p "$ARTIFACTS_DIR"
         mkdir -p "$DEBUG_ARTIFACTS_DIR"
         
@@ -974,6 +975,11 @@ runs:
         echo "SUSVER=$susfs_version" >> $GITHUB_ENV
         echo "$susfs_version" >> "${ARTIFACTS_FOLDER}/${OP_MODEL}_${OP_OS_VERSION}.txt"
         echo "SusFS Version: $susfs_version"
+
+        if [ "${{ inputs.ksu_type }}" = "SUKISU" ] && [ ! -d "$SUKISU_FOLDER/kernel" ]; then
+          echo "::error::SukiSU source directory not found: $SUKISU_FOLDER"
+          exit 1
+        fi
         
         # Function to compare semantic versions
         version_lte() {
